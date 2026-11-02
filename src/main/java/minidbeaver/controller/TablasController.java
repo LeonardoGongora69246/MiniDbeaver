@@ -8,6 +8,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressIndicator;
 import minidbeaver.model.RemoteDbDao;
+import javafx.scene.control.ButtonType;
+import minidbeaver.model.SqliteManager;
 
 import java.util.List;
 
@@ -20,11 +22,13 @@ public class TablasController {
     @FXML private ProgressIndicator progress;
 
     private final RemoteDbDao dao = new RemoteDbDao();
-
+    private final DescargaController descargaController = new DescargaController();
+    private final SqliteManager sqlite = new SqliteManager();
     @FXML
     private void initialize() {
         lstTablas.getSelectionModel().selectedItemProperty().addListener(
-                (obs, anterior, actual) -> btnDescargar.setDisable(actual == null)
+                (obs, anterior, actual) ->
+                        btnDescargar.setDisable(progress.isVisible() || actual == null)
         );
 
         cargarTablas();
@@ -66,6 +70,7 @@ public class TablasController {
 
     @FXML
     private void onDescargar() {
+
         String tabla = lstTablas.getSelectionModel().getSelectedItem();
 
         if (tabla == null) {
@@ -73,26 +78,73 @@ public class TablasController {
             return;
         }
 
-        /*
-         * TODO Integrante 3:
-         * Aquí debe abrirse el módulo de descarga y pasarle la tabla seleccionada.
-         *
-         * Contrato sugerido:
-         *   List<RemoteDbDao.ColumnaInfo> columnas = dao.obtenerColumnas(tabla);
-         *   RemoteDbDao.ResultadoTabla datos = dao.obtenerRegistros(tabla);
-         *   SqliteManager.guardarTabla(tabla, columnas, datos.getFilas());
-         */
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Descargar tabla");
-        alert.setHeaderText("Tabla seleccionada: " + tabla);
-        alert.setContentText(
-                "Este botón debe abrir el módulo de descarga del Integrante 3.\n\n" +
-                "Contrato disponible:\n" +
-                "RemoteDbDao.obtenerColumnas(\"" + tabla + "\")\n" +
-                "RemoteDbDao.obtenerRegistros(\"" + tabla + "\")\n" +
-                "SqliteManager.guardarTabla(\"" + tabla + "\", columnas, filas)"
-        );
-        alert.showAndWait();
+        boolean sobrescribir = false;
+
+        // Comprobar si ya existe localmente
+        try {
+            if (sqlite.tablaExiste(tabla)) {
+
+                Alert confirmacion =
+                        new Alert(Alert.AlertType.CONFIRMATION);
+
+                confirmacion.setTitle("Tabla existente");
+                confirmacion.setHeaderText(
+                        "La tabla " + tabla + " ya existe");
+
+                confirmacion.setContentText(
+                        "¿Deseas reemplazar los datos descargados?");
+
+                var respuesta = confirmacion.showAndWait();
+
+                if (respuesta.isEmpty()
+                        || respuesta.get() != ButtonType.OK) {
+                    return;
+                }
+
+                sobrescribir = true;
+            }
+
+        } catch (Exception ex) {
+            mostrarError("Error al comprobar la tabla", ex);
+            return;
+        }
+
+        // Crear tarea de descarga
+        Task<Void> tarea = descargaController.crearTareaDescarga(
+                tabla, sobrescribir);
+
+        // Mostrar indicador de progreso
+        setCargando(true);
+        lblEstado.textProperty().bind(tarea.messageProperty());
+
+        tarea.setOnSucceeded(e -> {
+
+            lblEstado.textProperty().unbind();
+            setCargando(false);
+
+            lblEstado.setText("Descarga completada: " + tabla);
+
+            mostrarInfo(
+                    "La tabla " + tabla +
+                            " se descargó correctamente en SQLite.");
+        });
+
+        tarea.setOnFailed(e -> {
+
+            lblEstado.textProperty().unbind();
+            setCargando(false);
+
+            lblEstado.setText("Error al descargar " + tabla);
+
+            mostrarError(
+                    "No se pudo descargar la tabla",
+                    tarea.getException());
+        });
+
+        // Ejecutar sin bloquear JavaFX
+        Thread hilo = new Thread(tarea);
+        hilo.setDaemon(true);
+        hilo.start();
     }
 
     private void setCargando(boolean cargando) {
