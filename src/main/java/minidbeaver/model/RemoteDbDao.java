@@ -26,18 +26,111 @@ public class RemoteDbDao {
      * Abre conexión JDBC contra MariaDB usando el túnel SSH local.
      * El túnel redirige 127.0.0.1:3307 -> servidorMariaDB:3306.
      */
+
+
+    /**
+     * INTEGRANTE 2:
+     * Abre una conexión JDBC con MariaDB mediante el túnel SSH
+     * configurado durante el inicio de sesión.
+     *
+     * MODIFICACIONES DEL INTEGRANTE 3:
+     *
+     * 1. Validación del puerto local del túnel SSH.
+     * 2. Configuración de un tiempo máximo de conexión.
+     * 3. Mensajes DEBUG para identificar el puerto utilizado.
+     * 4. Registro de errores SQL y sus causas.
+     *
+     * Motivo:
+     * Durante las pruebas de descarga de distintas tablas
+     * se presentaron errores intermitentes de conexión.
+     *
+     * Estos cambios permiten identificar posibles fallas
+     * sin modificar los métodos de consulta del integrante 2.
+     */
     public Connection abrirConexion() throws SQLException {
+
+        // INTEGRANTE 2:
+        // Recuperar la configuración almacenada en la sesión.
         ConexionConfig cfg = SesionApp.get().getConfig();
 
         if (cfg == null) {
-            throw new SQLException("No hay configuración de sesión. Inicia sesión primero.");
+            throw new SQLException(
+                    "No hay configuración de sesión. Inicia sesión primero.");
         }
 
+        // INTEGRANTE 2:
+        // Recuperar el puerto local del túnel SSH.
         int puertoLocal = SesionApp.get().getPuertoLocal();
-        String url = "jdbc:mariadb://127.0.0.1:" + puertoLocal + "/" + cfg.getDbNombre();
 
-        return DriverManager.getConnection(url, cfg.getDbUsuario(), cfg.getDbPassword());
+        // INTEGRANTE 3:
+        // Verificar que el puerto almacenado sea válido.
+        if (puertoLocal <= 0 || puertoLocal > 65535) {
+            throw new SQLException(
+                    "Puerto local del túnel SSH inválido: " + puertoLocal);
+        }
+
+        // INTEGRANTE 3:
+        // Mostrar el puerto utilizado para facilitar el diagnóstico.
+        System.out.println("[DEBUG] Puerto local SSH: " + puertoLocal);
+
+        // INTEGRANTE 2:
+        // Construir la dirección de conexión JDBC.
+        //
+        // INTEGRANTE 3:
+        // Se agregó connectTimeout=10000 para establecer
+        // un límite de 10 segundos al intentar conectar.
+        String url = "jdbc:mariadb://127.0.0.1:"
+                + puertoLocal + "/" + cfg.getDbNombre()
+                + "?connectTimeout=10000";
+
+        System.out.println("[DEBUG] Conectando a: " + url);
+
+        try {
+
+            // INTEGRANTE 2:
+            // Establecer conexión con MariaDB.
+            Connection conexion = DriverManager.getConnection(
+                    url,
+                    cfg.getDbUsuario(),
+                    cfg.getDbPassword()
+            );
+
+            // INTEGRANTE 3:
+            // Confirmar en consola que la conexión fue exitosa.
+            System.out.println("[DEBUG] Conexión MariaDB exitosa");
+
+            return conexion;
+
+        } catch (SQLException e) {
+
+            // INTEGRANTE 3:
+            // Registrar información del error para facilitar
+            // la identificación de problemas del túnel SSH.
+            System.err.println("[ERROR] Falló la conexión MariaDB");
+            System.err.println("[ERROR] Puerto: " + puertoLocal);
+            System.err.println("[ERROR] SQLState: " + e.getSQLState());
+            System.err.println("[ERROR] Mensaje: " + e.getMessage());
+
+            // Mostrar las causas internas de la excepción.
+            Throwable causa = e.getCause();
+
+            while (causa != null) {
+
+                System.err.println(
+                        "[ERROR] Causa: "
+                                + causa.getClass().getSimpleName()
+                                + ": " + causa.getMessage()
+                );
+
+                causa = causa.getCause();
+            }
+
+            // Mantener el comportamiento original:
+            // propagar el error para que el controlador lo maneje.
+            throw e;
+        }
     }
+
 
     /**
      * Contrato: RemoteDbDao.listarTablas() devuelve List<String>.
