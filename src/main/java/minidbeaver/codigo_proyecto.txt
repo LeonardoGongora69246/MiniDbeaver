@@ -1,0 +1,280 @@
+
+========================================
+ARCHIVO: ./controller/LoginController.java
+========================================
+
+package minidbeaver.controller;
+
+import javafx.concurrent.Task;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+import minidbeaver.model.ConexionConfig;
+import minidbeaver.model.SesionApp;
+
+public class LoginController {
+
+    // SSH
+    @FXML private TextField txtHost;
+    @FXML private TextField txtPuerto;
+    @FXML private TextField txtUsuario;
+    @FXML private PasswordField txtPassword;
+
+    // Base de datos
+    @FXML private TextField txtDbHost;
+    @FXML private TextField txtDbNombre;
+    @FXML private TextField txtDbUsuario;
+    @FXML private PasswordField txtDbPassword;
+
+    @FXML private Button btnConectar;
+    @FXML private Label lblEstado;
+
+    @FXML
+    private void onConectar() {
+        // Validar campos vacíos
+        if (vacio(txtHost) || vacio(txtUsuario) || vacio(txtPassword)
+                || vacio(txtDbHost) || vacio(txtDbNombre) || vacio(txtDbUsuario)) {
+            mostrarMensaje("Llena todos los campos", true);
+            return;
+        }
+
+        //Validar puerto
+        int puerto;
+        try {
+            String texto = txtPuerto.getText().trim();
+            puerto = texto.isEmpty() ? 22 : Integer.parseInt(texto);
+        } catch (NumberFormatException e) {
+            mostrarMensaje("El puerto debe ser un número", true);
+            return;
+        }
+
+        ConexionConfig cfg = new ConexionConfig(
+                txtHost.getText().trim(), puerto,
+                txtUsuario.getText().trim(), txtPassword.getText(),
+                txtDbHost.getText().trim(), txtDbNombre.getText().trim(),
+                txtDbUsuario.getText().trim(), txtDbPassword.getText());
+
+        // Abrir tunel en otro hilo
+        btnConectar.setDisable(true);
+        mostrarMensaje("Conectando...", false);
+
+        Task<Void> tarea = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                SesionApp.get().iniciar(cfg);
+                return null;
+            }
+        };
+        tarea.setOnSucceeded(e -> abrirPantallaTablas());
+        tarea.setOnFailed(e -> {
+            btnConectar.setDisable(false);
+            mostrarMensaje(mensajeError(tarea.getException()), true);
+        });
+
+        Thread hilo = new Thread(tarea);
+        hilo.setDaemon(true);
+        hilo.start();
+    }
+
+    private void abrirPantallaTablas() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/minidbeaver/view/Tablas.fxml"));
+            Stage stage = (Stage) btnConectar.getScene().getWindow();
+            stage.setScene(new Scene(loader.load()));
+            stage.centerOnScreen();
+        } catch (Exception ex) {
+            btnConectar.setDisable(false);
+            mostrarMensaje("No se pudo abrir la siguiente pantalla", true);
+            ex.printStackTrace();
+        }
+    }
+
+    private String mensajeError(Throwable ex) {
+        String msg = String.valueOf(ex.getMessage()).toLowerCase();
+        if (msg.contains("auth fail")) return "Usuario o contraseña incorrectos";
+        if (msg.contains("cannot be bound")) return "El puerto local 3307 ya está en uso";
+        return "No se pudo conectar al servidor";
+    }
+
+    private void mostrarMensaje(String texto, boolean esError) {
+        lblEstado.setStyle(esError ? "-fx-text-fill: #c0392b;" : "-fx-text-fill: #333;");
+        lblEstado.setText(texto);
+    }
+
+    private boolean vacio(TextField campo) {
+        return campo.getText() == null || campo.getText().trim().isEmpty();
+    }
+}
+
+
+========================================
+ARCHIVO: ./Main.java
+========================================
+
+package minidbeaver;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import minidbeaver.model.SesionApp;
+
+public class Main extends Application {
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/minidbeaver/view/Login.fxml"));
+        stage.setScene(new Scene(loader.load()));
+        stage.setTitle("Mini DBeaver");
+        stage.setResizable(false);
+        stage.show();
+    }
+
+    //Cerrar tunel
+    @Override
+    public void stop() {
+        SesionApp.get().cerrar();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+
+
+
+========================================
+ARCHIVO: ./model/ConexionConfig.java
+========================================
+
+package minidbeaver.model;
+
+public class ConexionConfig {
+
+    public static final int PUERTO_MARIADB = 3306;
+
+    // SSH
+    private final String sshHost;
+        private final int sshPuerto;
+             private final String sshUsuario;
+                 private final String sshPassword;
+
+    // Base de datos (Servidor)
+    private final String dbHost;
+        private final String dbNombre;
+            private final String dbUsuario;
+                private final String dbPassword;
+
+    public ConexionConfig(String sshHost, int sshPuerto, String sshUsuario, String sshPassword,
+                          String dbHost, String dbNombre, String dbUsuario, String dbPassword) {
+        this.sshHost = sshHost;
+            this.sshPuerto = sshPuerto;
+                this.sshUsuario = sshUsuario;
+                this.sshPassword = sshPassword;
+                    this.dbHost = dbHost;
+                        this.dbNombre = dbNombre;
+                            this.dbUsuario = dbUsuario;
+                                this.dbPassword = dbPassword;
+    }
+
+    public String getSshHost() { return sshHost; }
+        public int getSshPuerto() { return sshPuerto; }
+        public String getSshUsuario() { return sshUsuario; }
+        public String getSshPassword() { return sshPassword; }
+        public String getDbHost() { return dbHost; }
+        public String getDbNombre() { return dbNombre; }
+        public String getDbUsuario() { return dbUsuario; }
+        public String getDbPassword() { return dbPassword; }
+}
+
+
+
+========================================
+ARCHIVO: ./model/SesionApp.java
+========================================
+
+package minidbeaver.model;
+
+public class SesionApp {
+
+    private static final SesionApp INSTANCIA = new SesionApp();
+
+    private final SshTunnelService tunel = new SshTunnelService();
+        private ConexionConfig config;
+
+    private SesionApp() { }
+
+    public static SesionApp get() {
+        return INSTANCIA;
+    }
+
+    //Abre tunel ssh
+    public void iniciar(ConexionConfig cfg) throws Exception {
+        cerrar();
+        this.config = cfg;
+        tunel.abrir(cfg);
+    }
+
+    //Puerto local donde se conecta MariaDB
+    public int getPuertoLocal() { return tunel.getPuertoLocal(); }
+
+    //Credenciales de inicio de sesion
+    public ConexionConfig getConfig() { return config; }
+
+    public void cerrar() {
+        tunel.cerrar();
+    }
+}
+
+
+========================================
+ARCHIVO: ./model/SshTunnelService.java
+========================================
+
+package minidbeaver.model;
+
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+
+public class SshTunnelService {
+
+    private Session session;
+    private int puertoLocal;
+
+
+     // Abre la sesión SSH
+    public int abrir(ConexionConfig cfg) throws JSchException {
+        JSch jsch = new JSch();
+        session = jsch.getSession(cfg.getSshUsuario(), cfg.getSshHost(), cfg.getSshPuerto());
+        session.setPassword(cfg.getSshPassword());
+
+        // Para la tarea aceptamos la llave del servidor sin verificarla
+        session.setConfig("StrictHostKeyChecking", "no");
+        session.connect(10_000);
+
+        puertoLocal = session.setPortForwardingL(3307, cfg.getDbHost(), ConexionConfig.PUERTO_MARIADB);
+        return puertoLocal;
+    }
+
+    public boolean estaAbierto() {
+        return session != null && session.isConnected();
+    }
+
+    public int getPuertoLocal() {
+        return puertoLocal;
+    }
+
+    public void cerrar() {
+        if (estaAbierto()) {
+            session.disconnect();
+        }
+    }
+}
+
+
