@@ -10,21 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * INTEGRANTE 4:
- * CRUD genérico (columnas dinámicas) sobre las tablas descargadas en SQLite.
- * No conoce ningún control de JavaFX (MVC).
- *
- * Para identificar cada registro se usa el rowid interno de SQLite, así
- * funciona igual con claves primarias simples, compuestas o sin clave.
- */
+
 public class RegistroDao {
 
     private final SqliteManager sqlite = new SqliteManager();
 
-    // ---------------------------------------------------------------
-    // Clases de datos
-    // ---------------------------------------------------------------
 
     public static class Columna {
         private final String nombre;
@@ -73,9 +63,6 @@ public class RegistroDao {
         public List<Fila> getFilas() { return filas; }
     }
 
-    // ---------------------------------------------------------------
-    // Utilidades
-    // ---------------------------------------------------------------
 
     private String citar(String nombre) throws SQLException {
         if (nombre == null || nombre.isBlank()) {
@@ -105,7 +92,7 @@ public class RegistroDao {
         return columnas;
     }
 
-    /** Convierte el texto escrito en el formulario al tipo de la columna. */
+
     private Object convertir(String texto, Columna col) throws SQLException {
         if (texto == null || texto.isBlank()) {
             // Texto obligatorio vacío se guarda como "", el resto como NULL
@@ -144,9 +131,6 @@ public class RegistroDao {
         return mapa;
     }
 
-    // ---------------------------------------------------------------
-    // CONSULTAR
-    // ---------------------------------------------------------------
 
     public Resultado consultar(String tabla) throws SQLException {
         try (Connection con = sqlite.conectar()) {
@@ -173,9 +157,6 @@ public class RegistroDao {
         }
     }
 
-    // ---------------------------------------------------------------
-    // BUSCAR (Read con filtro)
-    // ---------------------------------------------------------------
 
     public Resultado buscar(String tabla, String columna, String texto) throws SQLException {
         try (Connection con = sqlite.conectar()) {
@@ -210,9 +191,6 @@ public class RegistroDao {
         }
     }
 
-    // ---------------------------------------------------------------
-    // INSERTAR
-    // ---------------------------------------------------------------
 
     public void insertar(String tabla, List<String> nombres, List<String> textos) throws SQLException {
         if (nombres.size() != textos.size()) {
@@ -252,9 +230,6 @@ public class RegistroDao {
         }
     }
 
-    // ---------------------------------------------------------------
-    // ACTUALIZAR
-    // ---------------------------------------------------------------
 
     public int actualizar(String tabla, long rowid, List<String> nombres, List<String> textos)
             throws SQLException {
@@ -288,9 +263,6 @@ public class RegistroDao {
         }
     }
 
-    // ---------------------------------------------------------------
-    // ELIMINAR
-    // ---------------------------------------------------------------
 
     public int eliminar(String tabla, long rowid) throws SQLException {
         String sql = "DELETE FROM " + citar(tabla) + " WHERE rowid = ?";
