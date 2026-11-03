@@ -16,6 +16,7 @@ import java.util.List;
 public class TablasController {
 
     @FXML private ListView<String> lstTablas;
+    @FXML private Button btnAbrirCrud;
     @FXML private Button btnDescargar;
     @FXML private Button btnRefrescar;
     @FXML private Label lblEstado;
@@ -61,6 +62,24 @@ public class TablasController {
         Thread hilo = new Thread(tarea);
         hilo.setDaemon(true);
         hilo.start();
+    }
+
+
+
+
+    @FXML
+    private void onAbrirCrud() {
+        String tabla = lstTablas.getSelectionModel().getSelectedItem();
+        if (tabla == null) { mostrarInfo("Selecciona una tabla primero."); return; }
+        try {
+            if (!sqlite.tablaExiste(tabla)) {
+                mostrarInfo("Primero descarga la tabla " + tabla + ".");
+                return;
+            }
+            CrudController.abrir((javafx.stage.Stage) lstTablas.getScene().getWindow(), tabla);
+        } catch (Exception ex) {
+            mostrarError("No se pudo abrir el CRUD", ex);
+        }
     }
 
     @FXML

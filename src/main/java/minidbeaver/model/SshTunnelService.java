@@ -19,8 +19,8 @@ public class SshTunnelService {
         // Para la tarea aceptamos la llave del servidor sin verificarla
         session.setConfig("StrictHostKeyChecking", "no");
         session.connect(10_000);
+        puertoLocal = session.setPortForwardingL(0, cfg.getDbHost(), ConexionConfig.PUERTO_MARIADB);
 
-        puertoLocal = session.setPortForwardingL(3307, cfg.getDbHost(), ConexionConfig.PUERTO_MARIADB);
         return puertoLocal;
     }
 
