@@ -66,11 +66,7 @@ public class CrudController {
                 });
     }
 
-    // ---------------------------------------------------------------
-    // Navegación
-    // ---------------------------------------------------------------
 
-    /** Abre la pantalla CRUD de una tabla ya descargada. */
     public static void abrir(Stage stage, String tabla) throws Exception {
         FXMLLoader loader = new FXMLLoader(
                 CrudController.class.getResource("/minidbeaver/view/crud.fxml"));
@@ -85,7 +81,7 @@ public class CrudController {
         stage.centerOnScreen();
     }
 
-    /** Lo llama quien abre la pantalla, indicando qué tabla editar. */
+
     public void setTabla(String tabla) {
         this.nombreTabla = tabla;
         lblTitulo.setText("Tabla: " + tabla);
@@ -107,9 +103,6 @@ public class CrudController {
         }
     }
 
-    // ---------------------------------------------------------------
-    // Carga de datos
-    // ---------------------------------------------------------------
 
     private void cargar() {
         lblEstado.setText("Cargando registros...");
@@ -183,9 +176,6 @@ public class CrudController {
         }
     }
 
-    // ---------------------------------------------------------------
-    // Acciones CRUD
-    // ---------------------------------------------------------------
 
     @FXML
     private void onAgregar() {
@@ -263,9 +253,6 @@ public class CrudController {
         cargar();
     }
 
-    // ---------------------------------------------------------------
-    // Búsqueda (Read con filtro)
-    // ---------------------------------------------------------------
 
     @FXML
     private void onBuscar() {
@@ -289,15 +276,7 @@ public class CrudController {
         cargar();
     }
 
-    // ---------------------------------------------------------------
-    // Validación y formulario
-    // ---------------------------------------------------------------
 
-    /**
-     * Valida los campos del formulario.
-     * Un entero que sea clave primaria puede quedar vacío al agregar
-     * (SQLite le asigna el siguiente número automáticamente).
-     */
     private boolean validar(boolean esNuevo) {
         for (int i = 0; i < columnas.size(); i++) {
             Columna col = columnas.get(i);
@@ -323,7 +302,7 @@ public class CrudController {
         return true;
     }
 
-    /** Junta nombres y textos de las columnas no BLOB. */
+
     private void recolectar(List<String> nombres, List<String> textos, boolean esNuevo) {
         for (int i = 0; i < columnas.size(); i++) {
             Columna col = columnas.get(i);
@@ -374,15 +353,12 @@ public class CrudController {
         return String.valueOf(valor);
     }
 
-    // ---------------------------------------------------------------
-    // Ejecución en segundo plano
-    // ---------------------------------------------------------------
 
     private interface AccionSql {
         void ejecutar() throws Exception;
     }
 
-    /** Ejecuta una operación de escritura y después recarga la tabla. */
+
     private void ejecutar(AccionSql accion, String mensajeOk) {
         correr(() -> {
             accion.ejecutar();
@@ -427,9 +403,6 @@ public class CrudController {
         actualizarBotones();
     }
 
-    // ---------------------------------------------------------------
-    // Mensajes
-    // ---------------------------------------------------------------
 
     private void mostrarError(String titulo, Throwable ex) {
         Alert alert = new Alert(Alert.AlertType.ERROR);

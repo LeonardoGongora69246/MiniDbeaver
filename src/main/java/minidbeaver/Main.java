@@ -1,3 +1,14 @@
+/*
+* UNIVERSIDAD AUTONOMA DE CAMPECHE
+* PROGRAMACION AVANZADA
+* Prof. Dr. Jose Aguilar Canepa
+* Integrantes:
+* LEONARDO GONGORA US
+* URIEL QUETZ MENDOZA
+* ALDAIR CANUL CABRERA
+* AARON CHI UC
+* */
+
 package minidbeaver;
 
 import javafx.application.Application;
