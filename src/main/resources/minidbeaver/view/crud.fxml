@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="minidbeaver.controller.CrudController"
+            styleClass="mini-root"
+            stylesheets="@estilos.css"
+            prefWidth="1050" prefHeight="680">
+
+    <!-- ENCABEZADO -->
+    <top>
+        <VBox>
+            <HBox styleClass="encabezado">
+                <Label text="Mini DBeaver"/>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <padding>
+                    <Insets top="12" right="16" bottom="8" left="16"/>
+                </padding>
+                <Label fx:id="lblTitulo" text="Tabla" styleClass="titulo-seccion"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="btnVolver" text="← Volver a tablas" onAction="#onVolver"/>
+            </HBox>
+
+            <!-- BÚSQUEDA (Read con filtro) -->
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <padding>
+                    <Insets top="0" right="16" bottom="8" left="16"/>
+                </padding>
+                <Label text="Buscar por:"/>
+                <ComboBox fx:id="cmbColumna" prefWidth="180"/>
+                <TextField fx:id="txtBuscar" promptText="Escribe para buscar..."
+                           prefWidth="260" onAction="#onBuscar"/>
+                <Button fx:id="btnBuscar" text="Buscar" styleClass="boton-primario" onAction="#onBuscar"/>
+                <Button fx:id="btnQuitarFiltro" text="Quitar filtro" onAction="#onQuitarFiltro"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- TABLA DINÁMICA + FORMULARIO -->
+    <center>
+        <HBox spacing="14">
+            <padding>
+                <Insets top="4" right="16" bottom="12" left="16"/>
+            </padding>
+
+            <TableView fx:id="tablaRegistros" HBox.hgrow="ALWAYS">
+                <placeholder>
+                    <Label text="No hay registros en esta tabla"/>
+                </placeholder>
+            </TableView>
+
+            <VBox spacing="10" prefWidth="340" minWidth="340" maxWidth="340" styleClass="panel">
+                <padding>
+                    <Insets top="12" right="12" bottom="12" left="12"/>
+                </padding>
+
+                <Label text="Datos del registro" styleClass="titulo-seccion"/>
+
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" hbarPolicy="NEVER">
+                    <GridPane fx:id="formulario" hgap="8" vgap="8">
+                        <padding>
+                            <Insets top="4" right="4" bottom="4" left="4"/>
+                        </padding>
+                    </GridPane>
+                </ScrollPane>
+
+                <FlowPane hgap="8" vgap="8">
+                    <Button fx:id="btnAgregar" text="Agregar" styleClass="boton-primario" onAction="#onAgregar"/>
+                    <Button fx:id="btnEditar" text="Editar" onAction="#onEditar"/>
+                    <Button fx:id="btnEliminar" text="Eliminar" styleClass="boton-peligro" onAction="#onEliminar"/>
+                    <Button fx:id="btnLimpiar" text="Limpiar" onAction="#onLimpiar"/>
+                    <Button fx:id="btnRefrescar" text="Refrescar" onAction="#onRefrescar"/>
+                </FlowPane>
+            </VBox>
+        </HBox>
+    </center>
+
+    <!-- BARRA DE ESTADO -->
+    <bottom>
+        <HBox alignment="CENTER_LEFT" spacing="10" styleClass="barra-estado">
+            <ProgressIndicator fx:id="progress" prefWidth="18" prefHeight="18"
+                               visible="false" managed="false"/>
+            <Label fx:id="lblEstado" text=""/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

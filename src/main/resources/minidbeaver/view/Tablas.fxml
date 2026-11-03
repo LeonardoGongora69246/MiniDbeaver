@@ -8,41 +8,25 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx/17"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="minidbeaver.controller.TablasController"
-      spacing="12"
-      prefWidth="520"
-      prefHeight="520"
-      alignment="CENTER">
+<VBox alignment="CENTER" prefHeight="520" prefWidth="520" spacing="12" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="minidbeaver.controller.TablasController">
 
     <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
+        <Insets bottom="20" left="20" right="20" top="20" />
     </padding>
 
-    <Label text="Tablas disponibles"
-           style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+    <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Tablas disponibles" />
 
-    <ListView fx:id="lstTablas"
-              VBox.vgrow="ALWAYS"/>
+    <ListView fx:id="lstTablas" VBox.vgrow="ALWAYS" />
 
-    <ProgressIndicator fx:id="progress"
-                       visible="false"
-                       managed="false"/>
+    <ProgressIndicator fx:id="progress" managed="false" visible="false" />
 
-    <Label fx:id="lblEstado"
-           text="Conectado. Cargando tablas..."
-           wrapText="true"/>
+    <Label fx:id="lblEstado" text="Conectado. Cargando tablas..." wrapText="true" />
 
-    <HBox spacing="10" alignment="CENTER_RIGHT">
-        <Button fx:id="btnRefrescar"
-                text="Refrescar"
-                onAction="#onRefrescar"/>
+    <HBox alignment="CENTER_RIGHT" spacing="10">
+      <Button fx:id="btnAbrirCrud" mnemonicParsing="false" onAction="#onAbrirCrud" text="Abrir CRUD" />
+        <Button fx:id="btnRefrescar" onAction="#onRefrescar" text="Refrescar" />
 
-        <Button fx:id="btnDescargar"
-                text="Descargar"
-                onAction="#onDescargar"
-                defaultButton="true"/>
+        <Button fx:id="btnDescargar" defaultButton="true" onAction="#onDescargar" text="Descargar" />
     </HBox>
 
 </VBox>

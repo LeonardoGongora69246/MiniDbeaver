@@ -1,0 +1,168 @@
+/* =========================================================
+   INTEGRANTE 4 - Estilos globales de Mini DBeaver
+   Paleta tomada de la pantalla de login:
+   - Encabezado oscuro:  #1b1b1f
+   - Fondo gris claro:   #f2f2f2
+   - Campos:             #ececec con borde #cfcfcf
+   - Botones:            #e6e6e6 con borde #bdbdbd
+   - Texto:              #333333
+   - Error:              #c0392b
+   Para usarlo en otra pantalla: stylesheets="@estilos.css" en el
+   nodo raiz y styleClass="mini-root".
+   ========================================================= */
+
+.mini-root {
+    -fx-background-color: #f2f2f2;
+    -fx-font-size: 13px;
+    -fx-text-fill: #333333;
+}
+
+.mini-root .label {
+    -fx-text-fill: #333333;
+}
+
+/* Encabezado oscuro */
+.encabezado {
+    -fx-background-color: #1b1b1f;
+    -fx-padding: 10 16 10 16;
+    -fx-alignment: center;
+}
+
+.encabezado .label {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.titulo-seccion {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+}
+
+.etiqueta-campo {
+    -fx-font-weight: bold;
+}
+
+.etiqueta-tipo {
+    -fx-text-fill: #777777;
+    -fx-font-size: 11px;
+}
+
+/* Paneles */
+.panel {
+    -fx-background-color: #f2f2f2;
+    -fx-border-color: #cfcfcf;
+    -fx-border-width: 1;
+}
+
+/* Campos de texto */
+.mini-root .text-field {
+    -fx-background-color: #ececec;
+    -fx-border-color: #cfcfcf;
+    -fx-border-width: 1;
+    -fx-background-radius: 2;
+    -fx-border-radius: 2;
+}
+
+.mini-root .text-field:focused {
+    -fx-border-color: #1b1b1f;
+}
+
+.mini-root .text-field:disabled {
+    -fx-opacity: 0.6;
+}
+
+/* Botones */
+.mini-root .button {
+    -fx-background-color: #e6e6e6;
+    -fx-border-color: #bdbdbd;
+    -fx-border-width: 1;
+    -fx-background-radius: 2;
+    -fx-border-radius: 2;
+    -fx-text-fill: #333333;
+    -fx-padding: 6 16 6 16;
+    -fx-cursor: hand;
+}
+
+.mini-root .button:hover {
+    -fx-background-color: #d9d9d9;
+}
+
+.mini-root .button:disabled {
+    -fx-opacity: 0.5;
+}
+
+.mini-root .boton-primario {
+    -fx-background-color: #1b1b1f;
+    -fx-border-color: #1b1b1f;
+    -fx-text-fill: white;
+}
+
+.mini-root .boton-primario:hover {
+    -fx-background-color: #34343a;
+}
+
+.mini-root .boton-peligro {
+    -fx-background-color: #c0392b;
+    -fx-border-color: #c0392b;
+    -fx-text-fill: white;
+}
+
+.mini-root .boton-peligro:hover {
+    -fx-background-color: #a93226;
+}
+
+/* Tabla */
+.mini-root .table-view {
+    -fx-background-color: #f2f2f2;
+    -fx-border-color: #cfcfcf;
+}
+
+.mini-root .table-view .column-header-background {
+    -fx-background-color: #1b1b1f;
+}
+
+.mini-root .table-view .column-header,
+.mini-root .table-view .filler {
+    -fx-background-color: #1b1b1f;
+    -fx-size: 32px;
+    -fx-border-color: #34343a;
+}
+
+.mini-root .table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.mini-root .table-row-cell:odd {
+    -fx-background-color: #ececec;
+}
+
+.mini-root .table-row-cell:selected {
+    -fx-background-color: #1b1b1f;
+}
+
+.mini-root .table-row-cell:selected .text,
+.mini-root .table-row-cell:selected .table-cell {
+    -fx-text-fill: white;
+}
+
+.mini-root .scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.mini-root .scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Barra de estado */
+.barra-estado {
+    -fx-background-color: #e6e6e6;
+    -fx-border-color: #cfcfcf transparent transparent transparent;
+    -fx-padding: 6 12 6 12;
+}
+
+.estado-error {
+    -fx-text-fill: #c0392b;
+}
